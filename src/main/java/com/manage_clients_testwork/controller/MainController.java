@@ -23,12 +23,12 @@ public class MainController {
     }
     @PostMapping("/clients")
     public void saveClient(@RequestBody Client client){
-        clientService.validateData(client);
+        clientService.validateData(client,true);
         clientService.saveClient(client);
     }
     @PutMapping("/clients")
     public void updateClient(@RequestBody Client client){
-        clientService.validateData(client);
+        clientService.validateData(client,false);
         clientService.saveClient(client);
     }
 }

@@ -1,7 +1,9 @@
 package com.manage_clients_testwork.service;
 
+import com.manage_clients_testwork.exceptionhandler.ClientSaveException;
 import com.manage_clients_testwork.model.Client;
 import com.manage_clients_testwork.repositories.ClientRepository;
+import com.manage_clients_testwork.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,12 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public Client getClient(String email) {
+        Client client = clientRepository.findClientByEmail(email);
+        return client;
+    }
+
+    @Override
     public void saveClient(Client client) {
         clientRepository.save(client);
     }
@@ -39,9 +47,21 @@ public class ClientServiceImpl implements ClientService {
         clientRepository.deleteById(id);
 
     }
-
+//Возможно валидацию разных параметров следует разнести по разным функциям???
     @Override
-    public void validateData(Client client) {
+    public void validateData(Client client,Boolean isANewUser) {
+        if (client.getEmail()==null ){
+            throw new ClientSaveException("Required field EMAIL not filled");
+        }
+        if (isANewUser && getClient(client.getEmail())!=null){
+            throw new ClientSaveException("Client's  email("+client.getEmail()+") already exists");
+        }
+        if (StringUtils.isEmpty(client.getEmail())){
+            throw new ClientSaveException("Required field EMAIL not filled");
+        }
+        if (StringUtils.emailNotValid(client.getEmail())){
+            throw new ClientSaveException("Required field EMAIL not valid");
+        }
 
     }
 }
