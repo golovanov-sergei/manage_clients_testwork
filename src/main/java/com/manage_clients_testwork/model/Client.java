@@ -8,7 +8,7 @@ public class Client {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private long id=0;
     @Column(name = "email")
     private String email;
     @Column(name = "last_name")

@@ -5,6 +5,9 @@ public class Response {
     private boolean fatal;
     private String message;
 
+    public Response() {
+    }
+
     public boolean isSuccess() {
         return success;
     }

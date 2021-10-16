@@ -44,23 +44,44 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void deleteClient(Long id) {
-        clientRepository.deleteById(id);
+        Client client = null;
+        Optional<Client> optional = clientRepository.findById(id);
+        if (optional.isPresent()){
+            client = optional.get();
+            clientRepository.delete(client);
+        }else {
+            throw new ClientSaveException("Client ID("+id+") not found");
+        }
 
     }
-//Возможно валидацию разных параметров следует разнести по разным функциям???
+
+    //Возможно валидацию разных параметров следует разнести по разным функциям???
     @Override
-    public void validateData(Client client,Boolean isANewUser) {
-        if (client.getEmail()==null ){
+    public void validateData(Client client, Boolean isANewUser) {
+        if (client.getEmail() == null) {
             throw new ClientSaveException("Required field EMAIL not filled");
         }
-        if (isANewUser && getClient(client.getEmail())!=null){
-            throw new ClientSaveException("Client's  email("+client.getEmail()+") already exists");
+        if (isANewUser && getClient(client.getEmail()) != null) {
+            throw new ClientSaveException("Client's  email(" + client.getEmail() + ") already exists");
         }
-        if (StringUtils.isEmpty(client.getEmail())){
-            throw new ClientSaveException("Required field EMAIL not filled");
-        }
-        if (StringUtils.emailNotValid(client.getEmail())){
+        if (StringUtils.emailNotValid(client.getEmail())) {
             throw new ClientSaveException("Required field EMAIL not valid");
+        }
+        if (StringUtils.phoneNotValid(client.getPhone())) {
+            throw new ClientSaveException("Required field PHONE not valid");
+        }
+        if (!isANewUser && client.getId() == 0L) {
+            throw new ClientSaveException("Required field ID not filled");
+        }
+        if (!isANewUser && getClient(client.getId())==null) {
+            throw new ClientSaveException("Client Id(" + client.getId() + ") doesn't exists");
+        }
+
+//      Проверка при редактировании клиента: принадлежит ли данный email другому клиенту
+//      Если редактирование и указанный имейл есть в базе и айди указанного имейла не совпадает с айди редактируемого пользователя
+//      Выбросить исключение
+        if (!isANewUser && getClient(client.getEmail()) != null && getClient(client.getEmail()).getId() != client.getId()) {
+            throw new ClientSaveException("Client's  email(" + client.getEmail() + ") already exists");
         }
 
     }
